@@ -8,10 +8,10 @@ on:
   # allows to manually run the job at any time
   workflow_dispatch:
   
-  # run on every push on the master branch
+  # run on every push on the main branch
   push:
     branches:
-    - master
+    - main
     
   
 
@@ -31,8 +31,35 @@ jobs:
           outputs: |
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
-          
-          
+
+      # general stats card (replaces github-readme-stats.vercel.app/api)
+      - name: generate stats.svg
+        uses: lowlighter/metrics@v3.34
+        with:
+          token: ${{ secrets.METRICS_TOKEN || secrets.GITHUB_TOKEN }}
+          user: ${{ github.repository_owner }}
+          filename: dist/stats.svg
+          output_action: none
+          base: header, repositories
+          config_timezone: Europe/Paris
+          config_display: large
+          extras_css: ":root { --color-calendar-graph-day-bg: transparent } .background { fill: transparent }"
+
+      # top languages card (replaces .../api/top-langs)
+      - name: generate languages.svg
+        uses: lowlighter/metrics@v3.34
+        with:
+          token: ${{ secrets.METRICS_TOKEN || secrets.GITHUB_TOKEN }}
+          user: ${{ github.repository_owner }}
+          filename: dist/languages.svg
+          output_action: none
+          base: ""
+          plugin_languages: yes
+          plugin_languages_limit: 8
+          plugin_languages_sections: most-used
+          config_display: large
+          extras_css: ".background { fill: transparent }"
+
       # push the content of <build_dir> to a branch
       # the content will be available at https://raw.githubusercontent.com/<github_user>/<repository>/<target_branch>/<file> , or as github page
       - name: push github-contribution-grid-snake.svg to the output branch

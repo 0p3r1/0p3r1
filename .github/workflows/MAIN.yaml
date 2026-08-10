@@ -60,6 +60,14 @@ jobs:
           config_display: large
           extras_css: ".background { fill: transparent }"
 
+      # metrics renders inside its docker volume, not the workspace, so copy the
+      # svgs into dist/ before the push step reads it
+      - name: collect metrics renders into dist
+        run: |
+          sudo cp /metrics_renders/dist/*.svg dist/
+          sudo chown -R "$(id -u):$(id -g)" dist
+          ls -l dist
+
       # push the content of <build_dir> to a branch
       # the content will be available at https://raw.githubusercontent.com/<github_user>/<repository>/<target_branch>/<file> , or as github page
       - name: push github-contribution-grid-snake.svg to the output branch
